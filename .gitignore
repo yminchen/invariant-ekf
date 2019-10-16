@@ -42,3 +42,5 @@ slprj/
 bin/
 build/
 
+# Bazel folders
+/bazel-*
