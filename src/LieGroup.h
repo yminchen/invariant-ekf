@@ -11,8 +11,7 @@
  *  @date   September 25, 2018
  **/
 
-#ifndef LIEGROUP_H
-#define LIEGROUP_H 
+#pragma once
 #include <Eigen/Dense>
 #include <iostream>
 
@@ -26,4 +25,3 @@ Eigen::MatrixXd Exp_SEK3(const Eigen::VectorXd& v);
 Eigen::MatrixXd Adjoint_SEK3(const Eigen::MatrixXd& X);
 
 } // end inekf namespace
-#endif 
