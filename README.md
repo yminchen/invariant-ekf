@@ -18,26 +18,16 @@ A ROS wrapper for the filter is available at [https://github.com/RossHartley/inv
 
 ## Setup
 ### Requirements
-* CMake 2.8.3 or later
+* Bazel
 * g++ 5.4.0 or later
-* [Eigen3 C++ Library](http://eigen.tuxfamily.org/index.php?title=Main_Page)
 
-### Installation Using CMake
+### Installation Using Bazel
 ```
-mkdir build
-cd build 
-cmake .. 
-make
+bazel build src/...
 ``` 
-invariant-ekf can be easily included in your cmake project by adding the following to your CMakeLists.txt:
-```
-find_package(inekf) 
-include_directories(${inekf_INCLUDE_DIRS})
-```
 
-## Examples
-1. A landmark-aided inertial navigation example is provided at `src/examples/landmarks.cpp`
-2. A contact-aided inertial navigation example is provided at `src/examples/kinematics.cpp`
+### Note
+This repository currently uses Eigen version 3.3.3. At the time of writing this README, `dairlib` and this repo use the same version of Eigen. However, `dairlib` and this repo could potentially use different versions of Eigen in the future (when `drake` changes their version of Eigen). If this causes an issue, change the version of Eigen to be used in the `WORKSPACE` file in this repo. 
 
 ## Citations
 The contact-aided invariant extended Kalman filter is described in: 
