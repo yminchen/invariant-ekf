@@ -12,6 +12,7 @@
  **/
 
 #include "src/InEKF.h"
+#include "InEKF.h"
 
 namespace inekf {
 
@@ -53,9 +54,10 @@ InEKF::InEKF(RobotState state)
     : state_(state) {}
 
 // Constructor with initial state and noise params
-InEKF::InEKF(RobotState state, NoiseParams params)
+InEKF::InEKF(RobotState state, NoiseParams params, bool print_update)
     : state_(state),
-      noise_params_(params) {}
+      noise_params_(params),
+      print_update_(print_update){}
 
 // Assignment operator
 InEKF& InEKF::operator = (const InEKF& old_inekf) {
@@ -211,6 +213,18 @@ void InEKF::Correct(const Observation& obs) {
 
   // Compute correction terms
   Eigen::MatrixXd Z = BigX * obs.Y - obs.b;
+  std::cout << Z << "\n\n";
+
+  std::stringstream ss;
+  ss << "Z: \n" << Z << "\n\n";
+  FILE* fp = fopen("/home/brian/workspace/ekf_debug_out.txt", "a");
+  std::string tmp = ss.str();
+  const char* cstr_out = tmp.c_str();
+  fputs(cstr_out, fp);
+  fclose(fp);
+
+
+
   // cout << "Z: (from InEKF) " << endl;
   // cout << Z.transpose() << endl;
   Eigen::VectorXd delta = K * obs.PI * Z;
@@ -536,6 +550,10 @@ void InEKF::CorrectKinematics(const vectorKinematics& measured_kinematics) {
 
   // Correct state using stacked observation
   Observation obs(Y, b, H, N, PI);
+  if(print_update_) {
+    std::cout << obs << std::endl;
+  }
+
   if (!obs.empty()) {
     this->Correct(obs);
   }

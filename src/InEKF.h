@@ -15,6 +15,7 @@
 #include <Eigen/Dense>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <vector>
 #include "LieGroup.h"
@@ -87,7 +88,7 @@ class InEKF {
   InEKF();
   InEKF(NoiseParams params);
   InEKF(RobotState state);
-  InEKF(RobotState state, NoiseParams params);
+  InEKF(RobotState state, NoiseParams params, bool print_update);
 
   // assignment operator (needed for drake abstract value)
   InEKF& operator = (const InEKF&);
@@ -109,6 +110,7 @@ class InEKF {
   void CorrectKinematics(const vectorKinematics& measured_kinematics);
 
  private:
+  bool print_update_;
   RobotState state_;
   NoiseParams noise_params_;
   mapIntVector3d prior_landmarks_;

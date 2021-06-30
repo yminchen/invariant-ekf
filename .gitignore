@@ -44,3 +44,6 @@ build/
 
 # Bazel folders
 /bazel-*
+
+# CLion folders
+.clwb/
