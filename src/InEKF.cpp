@@ -11,6 +11,7 @@
  *  @date   September 25, 2018
  **/
 
+#include <fstream>
 #include "src/InEKF.h"
 
 namespace inekf {
@@ -208,6 +209,34 @@ void InEKF::Correct(const Observation& obs) {
   // Copy X along the diagonals if more than one measurement
   Eigen::MatrixXd BigX;
   state_.copyDiagX(obs.Y.rows() / state_.dimX(), BigX);
+
+  int n_contacts = obs.Y.rows() / state_.dimX();
+  Eigen::VectorXd Y_minus_invX_b = obs.Y - BigX.householderQr().solve(obs.b);
+  Eigen::VectorXd contacts_pos_error(3 * 4);
+  for (int i = 0; i < n_contacts; i++) {
+    contacts_pos_error.segment<3>(3*i) = Y_minus_invX_b.segment<3>(state_.dimX() * i); 
+  }
+  if (n_contacts == 2) {
+    contacts_pos_error.tail<6>() = Eigen::VectorXd::Zero(6);
+  }
+  std::ofstream outfile;
+  outfile.open("../ekf_error.txt", std::ios_base::app);
+  outfile << n_contacts << ", ";
+  for (int i = 0; i < contacts_pos_error.size(); i++) {
+    outfile << contacts_pos_error(i);
+    if (i == contacts_pos_error.size() - 1){
+      outfile << "\n";
+    } else {
+      outfile << ", ";
+    }
+  }
+  // cout << "state_.dimX() = " << state_.dimX() << endl;
+  // cout << "obs.Y.size() = " << obs.Y.cols() << ", " << obs.Y.rows() << endl;
+  // cout << "BigX.size() = " << BigX.cols() << ", " << BigX.rows() << endl;
+  // cout << "obs.b.size() = " << obs.b.cols() << ", " << obs.b.rows() << endl;
+  // std::cout << "Y = " <<  (obs.Y).transpose() << std::endl;
+  // // std::cout << "invX*b = " <<  (BigX.inverse() * obs.b).transpose() << std::endl;
+  // std::cout << "invX*b = " <<  (BigX.householderQr().solve(obs.b)).transpose() << std::endl;
 
   // Compute correction terms
   Eigen::MatrixXd Z = BigX * obs.Y - obs.b;
@@ -538,6 +567,18 @@ void InEKF::CorrectKinematics(const vectorKinematics& measured_kinematics) {
   Observation obs(Y, b, H, N, PI);
   if (!obs.empty()) {
     this->Correct(obs);
+  } else {
+    std::ofstream outfile;
+    outfile.open("../ekf_error.txt", std::ios_base::app);
+    outfile << -1 << ", ";
+    for (int i = 0; i < 12; i++) {
+      outfile << 0;
+      if (i == 11){
+        outfile << "\n";
+      } else {
+        outfile << ", ";
+      }
+    }
   }
 
   // Remove contacts from state
